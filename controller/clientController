@@ -1,0 +1,80 @@
+const ClientModel = require("../models/clientModel");
+const AgencyModel = require("../models/agencyModel");
+
+// Create Client
+exports.createClient = async (req, res) => {
+
+    const { name, email, phone, totalBill } = req.body
+    agencyId = req.body.agencyId
+
+    const client = new ClientModel({
+        name,
+        email,
+        phone,
+        totalBill,
+        agencyId
+    })
+
+    const createdClient = await client.save();
+    res.status(201).json({
+        name:createdClient.name,
+        email:createdClient.email,
+        phone:createdClient.phone,
+        totalBill:createdClient.totalBill,
+        agencyId:createdClient.agencyId
+        
+    })
+
+}
+
+// Update Client
+exports.updateClient = async (req, res) => {
+
+    const client = await ClientModel.findById({_id:req.params.id});
+    agencyId = req.body.agency.id
+
+
+    if (client) {
+        client.name = req.body.name;
+        client.email = req.body.email;
+        client.phone = req.body.phone;
+        client.totalBill = req.body.totalBill;
+        client.agencyId = agencyId;
+
+        const updatedClient = await ClientModel.create();
+
+        res.status(200).json({
+           // _id: updatedClient._id,
+            name: updatedClient.name,
+            email: updatedClient.email,
+            phone: updatedClient.phone,
+            totalBill: updatedClient.totalBill,
+            agencyId: updatedClient.agencyId,
+        })
+
+    } else {
+        res.status(400)
+        throw new Error("Client not found");
+    }
+
+}
+
+// Client with Max Bill
+exports.getClientMaxBill = async (req, res) => {
+
+    await ClientModel.find({}).populate({ path: "agencyId" }).sort({ totalBill: -1 }).limit(1)
+        .then(data => {
+            console.log(data);
+            res.status(200).json({
+                AgencyName: data[0].agencyId.name,
+                ClientName: data[0].name,
+                TotalBill: data[0].totalBill
+            })
+        })
+        .catch(err =>
+            res.status(400).json({
+                error: err.message,
+                message: "Failed"
+            }));
+
+}

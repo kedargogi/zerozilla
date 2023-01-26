@@ -1,0 +1,9 @@
+const express = require("express");
+const { registerAgency, updateAgency, getAgency, deleteAgency } = require("../controller/agencyController");
+const { authMiddleware } = require("../middleware/isAuth");
+const router = express.Router();
+
+router.route("/registeragency").post(registerAgency);
+router.route("/agency/:id").put(updateAgency).get(getAgency).delete(deleteAgency);
+
+module.exports = router;
